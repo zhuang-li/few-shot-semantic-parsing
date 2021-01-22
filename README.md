@@ -1,1 +1,1 @@
-# few-shot-semantic-parsing
+# Few-shot Learning for Semantic Parsing
