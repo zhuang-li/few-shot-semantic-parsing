@@ -1,0 +1,5 @@
+plea give me a flight from ci0 to ci1 befor ti0 in the morn	( lambda $0 e ( and ( flight $0 ) ( < ( departure_time $0 ) ti0 ) ( from $0 ci0 ) ( to $0 ci1 ) ) )
+plea list all the flight from ci0 to ci1 which serv meal	( lambda $0 e ( and ( flight $0 ) ( has_meal $0 ) ( from $0 ci0 ) ( to $0 ci1 ) ) )
+show me first class flight from ci0 to ci1 leave on a da0	( lambda $0 e ( and ( flight $0 ) ( class_type $0 first:cl ) ( from $0 ci0 ) ( to $0 ci1 ) ( day $0 da0 ) ) )
+can you show me even flight from ci0 to ci1 that serv dinner	( lambda $0 e ( and ( flight $0 ) ( meal $0 dinner:me ) ( during_day $0 evening:pd ) ( from $0 ci0 ) ( to $0 ci1 ) ) )
+what price is a limousin service to ci0 ap0	( lambda $0 e ( exists $1 ( and ( limousine $1 ) ( from_airport $1 ap0 ) ( = ( ground_fare $1 ) $0 ) ) ) )

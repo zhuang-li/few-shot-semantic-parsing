@@ -1,0 +1,5 @@
+which is the smallest state	( argmin $0 ( state:t $0 ) ( size:i $0 ) )
+what is the highest point in s0	( argmax $0 ( and ( place:t $0 ) ( loc:t $0 s0 ) ) ( elevation:i $0 ) )
+what is the averag popul per squar km in the co0	( density:i co0 )
+what river do not run through s0	( lambda $0 e ( and ( river:t $0 ) ( not ( loc:t $0 s0 ) ) ) )
+what is the area of s0	( area:i s0 )

@@ -1,0 +1,5 @@
+can you show me even flight from ci0 to ci1 that serv dinner	( lambda $0 e ( and ( flight $0 ) ( meal $0 dinner:me ) ( during_day $0 evening:pd ) ( from $0 ci0 ) ( to $0 ci1 ) ) )
+show me a list of all the airline that offer busi class service	( lambda $0 e ( exists $1 ( and ( class_type $1 business:cl ) ( = ( airline:e $1 ) $0 ) ) ) )
+what kind of plane is use on the earliest flight from ci1 to ci0 afternoon	( lambda $0 e ( aircraft ( argmin $1 ( and ( flight $1 ) ( during_day $1 afternoon:pd ) ( from $1 ci1 ) ( to $1 ci0 ) ) ( departure_time $1 ) ) $0 ) )
+how much would car rental cost in ci0	( lambda $0 e ( exists $1 ( and ( rental_car $1 ) ( to_city $1 ci0 ) ( = ( ground_fare $1 ) $0 ) ) ) )
+show me all flight from ci0 to ci1 on da0 which serv a meal and arrive in ci1 befor ti0	( lambda $0 e ( and ( flight $0 ) ( has_meal $0 ) ( < ( arrival_time $0 ) ti0 ) ( from $0 ci0 ) ( to $0 ci1 ) ( day $0 da0 ) ) )
