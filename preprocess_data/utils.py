@@ -8,7 +8,7 @@ from grammar.db import normalize_trees, TemplateDB
 from grammar.utils import is_var, is_lit, is_predicate
 from grammar.action import ReduceAction, GenAction
 from grammar.db import create_template_to_leaves
-from grammar.rule import product_rules_to_actions_bottomup, product_rules_to_actions_topdown
+from grammar.rule import product_rules_to_actions_bottomup
 from grammar.rule import Action
 from components.dataset import Example, Batch
 from components.vocab import Vocab, LitEntry
@@ -308,9 +308,8 @@ def get_predicate_tokens(predicate_list, use_white_list=True):
     return turned_predicate_tokens
 
 
-def get_entity_variable_list(tgt_code_list, data_type):
-    entity_list = []
-    variable_list = []
+def get_entity_variable_list(tgt_code_list, data_type, temp_db):
+
     for tgt_list in tgt_code_list:
         temp_entity_list = []
         temp_variable_list = []
@@ -319,9 +318,8 @@ def get_entity_variable_list(tgt_code_list, data_type):
                 temp_variable_list.append(token)
             elif is_lit(token, dataset=data_type):
                 temp_entity_list.append(token)
-        entity_list.append(temp_entity_list)
-        variable_list.append(temp_variable_list)
-    return entity_list, variable_list
+        temp_db.entity_list.append(temp_entity_list)
+        temp_db.variable_list.append(temp_variable_list)
 
 
 def parse_lambda_query_helper(elem_list, data_type):
@@ -639,23 +637,19 @@ def produce_data(data_filepath, data_type, lang, turn_v_back=False, normlize_tre
         tgt_asts = [parse_overnight_query(t, data_type) for t in tgt_code_list]
 
     temp_db = normalize_trees(tgt_asts)
-    if data_type == 'geo_lambda' or data_type == 'atis_lambda' or data_type == 'job_prolog':
-        entity_list, variable_list = get_entity_variable_list(tgt_code_list, data_type)
-        temp_db.entity_list = entity_list
-        temp_db.variable_list = variable_list
+    get_entity_variable_list(tgt_code_list, data_type, temp_db)
+
 
     leaves_list = create_template_to_leaves(tgt_asts, temp_db,freq = frequent)
-    if parse_mode=='bottomup':
-        tid2config_seq = product_rules_to_actions_bottomup(tgt_asts, leaves_list, temp_db, rule_type=rule_type,
-                                              turn_v_back=turn_v_back, use_normalized_trees=normlize_tree)
-        reduce_action_length_set = get_reduce_action_length_set(tid2config_seq)
-        assert isinstance(list(temp_db.action2id.keys())[0], Action), "action2id must contain actions"
-    elif parse_mode=='topdown':
-        tid2config_seq = product_rules_to_actions_topdown(tgt_asts, leaves_list, temp_db,
-                                              turn_v_back=turn_v_back, use_normalized_trees=normlize_tree)
+
+    tid2config_seq = product_rules_to_actions_bottomup(tgt_asts, leaves_list, temp_db, rule_type=rule_type,
+                                          turn_v_back=turn_v_back, use_normalized_trees=normlize_tree)
+
+    assert isinstance(list(temp_db.action2id.keys())[0], Action), "action2id must contain actions"
+
     assert len(src_list) == len(tgt_code_list), "instance numbers should be consistent"
-    length_action = 0
-    # update predicate frequency
+
+
     predicate_freq = {}
 
     coor_table = dict()
