@@ -237,8 +237,6 @@ class Seq2SeqModel(nn.Module):
             self.new_tensor = torch.FloatTensor
 
 
-        # action proto
-
         nn.init.xavier_normal_(self.action_embedding.weight.data)
         self.action_proto = self.new_tensor(len(self.action_vocab), self.hidden_size)
         self.train_action_set = set()
@@ -541,15 +539,6 @@ class Seq2SeqModel(nn.Module):
                 reg_loss = torch.abs(att_weight - reg_weight)
                 reg_loss = reg_loss.sum()
 
-                #reweight_nonzero = reg_weight.squeeze()
-
-                #reweight_nonzero = reweight_nonzero[reweight_nonzero.nonzero()].squeeze(1)
-
-                #reg_weight_entropy = Categorical(probs=reweight_nonzero).entropy()
-
-                #certain_score = reg_weight_entropy/torch.log(torch.Tensor([reweight_nonzero.size(0)]))
-
-                #if certain_score.item() <= 1:
                 reg_loss_list.append(reg_loss)
             if self.sup_attention:
                 for e_id, example in enumerate(batch.examples):

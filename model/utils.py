@@ -53,6 +53,7 @@ class GloveHelper(object):
             if word in token2id:
                 word_id = token2id[word]
                 word_ids.remove(word_id)
+                print (word_id)
                 embed_layer.weight[word_id].data.copy_(new_tensor(embed))
                 count += 1
                 if count == len(token2id):
