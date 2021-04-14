@@ -2,7 +2,6 @@
 from grammar.rule import ReduceAction
 from grammar.vertex import CompositeTreeVertex, RuleVertex, TreeVertex
 from grammar.rule import ProductionRuleBLB
-from model.attention_util import dot_prod_attention
 from grammar.consts import IMPLICIT_HEAD, ROOT, FULL_STACK_LENGTH, NT
 
 
@@ -39,8 +38,6 @@ class Hypothesis(object):
         self.reduce_action_count = 0
         self.t = 0
 
-        self.frontier_node = None
-        self.frontier_field = None
 
 
     @property
@@ -99,18 +96,6 @@ class Hypothesis(object):
             self.is_parsable = False
         return stack
 
-    def reduce_embedding(self, reduce_embedding, length_of_rule, mem_net):
-        assert length_of_rule <= len(self.embedding_stack), "embedding stack length must be longer than or equal to the rule body length"
-        if mem_net:
-            partial_stack_embedding = torch.stack(self.embedding_stack[-length_of_rule:])
-            reduce_embedding = reduce_embedding.unsqueeze(0)
-            partial_stack_embedding = partial_stack_embedding.unsqueeze(0)
-            cxt_vec, cxt_weight = dot_prod_attention(reduce_embedding, partial_stack_embedding, partial_stack_embedding)
-            reduce_embedding = reduce_embedding.squeeze() + cxt_vec.squeeze()
-        for i in range(length_of_rule):
-            self.embedding_stack.pop()
-        self.embedding_stack.append(reduce_embedding)
-        return self.embedding_stack
 
     def reduce_action_ids(self, reduce_id, length_of_rule):
         if length_of_rule == FULL_STACK_LENGTH:

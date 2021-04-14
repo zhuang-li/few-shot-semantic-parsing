@@ -17,8 +17,6 @@ from torch.nn.parameter import Parameter
 from grammar.rule import *
 from six.moves import xrange
 
-from model.rat_sql.models.spider.spider_match_utils import compute_schema_linking
-
 
 def euclidean_dist(x, y):
     # x: N x D
@@ -33,31 +31,6 @@ def euclidean_dist(x, y):
 
     return torch.pow(x - y, 2).sum(2)
 
-class BatchLinear(nn.Module):
-    def __init__(self, batch_size, label_len, hidden_size, mask):
-        super(BatchLinear, self).__init__()
-        self.batch_size = batch_size
-        self.label_len = label_len
-        self.hidden_size = hidden_size
-        self.weight = Parameter(data=torch.Tensor(batch_size, label_len, hidden_size), requires_grad = True)
-        self.mask = mask
-
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-
-    def forward(self, input):
-        """
-        :param input: (batch_size, hidden_size)
-        """
-        #print (input.size())
-        #print (self.weight.size())
-        batch_score = torch.bmm(self.weight, input.unsqueeze(2)).squeeze(2)
-        if self.mask is not None:
-            batch_score = batch_score.flatten()[self.mask.flatten()]
-
-        return batch_score
 
 def masked_log_softmax(vector: torch.Tensor, mask: torch.Tensor, dim: int = -1) -> torch.Tensor:
     """
@@ -126,12 +99,6 @@ def length_array_to_mask_tensor(length_array, use_cuda=False, valid_entry_has_ma
     mask = torch.tensor(mask, dtype=torch.bool)
     return mask.cuda() if use_cuda else mask
 
-def build_similarity_binary_label(length_stack, length_rule, use_cuda=False):
-    stack_label = torch.zeros(length_stack)
-    stack_label[-length_rule:] = 1
-    if use_cuda:
-        stack_label = stack_label.cuda()
-    return stack_label
 
 def input_transpose(sents, pad_token):
     """
@@ -198,62 +165,6 @@ def to_seq_pad(sequences, append_boundary_sym=True, mode ='token'):
 
     return sents_t
 
-def to_src_sents_span(src_sents, predicate_tokens):
-    #sequences = [['<s>'] + seq + ['</s>'] for seq in src_sents]
-
-
-
-    # [action.prototype_tokens for action in self.vocab.action.token2id.keys()]
-    #print (sequences[0])
-    #print (predicate_tokens)
-    #print (action_vocab.token2id)
-    batch_size = len(src_sents)
-    predicate_map_tensor = torch.zeros(batch_size, len(predicate_tokens), 2)
-
-    src_span_list = []
-    for src_id, src_scent in enumerate(src_sents):
-        link_dict = compute_schema_linking(src_scent, predicate_tokens)
-        seq = ['<s>'] + src_scent + ['</s>']
-
-        question_map_set = dict()
-        #predicate_map_set = dict()
-        for link_id, link_type in link_dict['q_col_match'].items():
-            link_ids = link_id.split(',')
-            question_id = int(link_ids[0]) + 1
-
-            predicate_id = int(link_ids[1])
-            question_map_set[question_id] = predicate_id
-            #question_map_set.add(question_id)
-            #predicate_map_set[predicate_id] = link_type
-            if link_type == 'CEM':
-                predicate_map_tensor[src_id, predicate_id, 0] = 1
-            elif link_type == 'CPM':
-                predicate_map_tensor[src_id, predicate_id, 1] = 1
-        src_span = []
-
-        sub_span = ['predicatetype']
-        for token_idx, token in enumerate(seq):
-            if token_idx in question_map_set:
-                if token_idx - 1 in question_map_set and not (question_map_set[token_idx - 1] == question_map_set[token_idx]):
-                    src_span.append(sub_span)
-                    sub_span = ['predicatetype']
-                    sub_span.append(token)
-                else:
-                    sub_span.append(token)
-            else:
-                if len(sub_span) > 1:
-                    src_span.append(sub_span)
-                    sub_span = ['predicatetype']
-                src_span.append([token])
-        if len(sub_span) > 1:
-            src_span.append(sub_span)
-        src_span_list.append(src_span)
-
-    src_lengths = [len(src_sent_span) for src_sent_span in src_span_list]
-
-    return src_span_list, src_lengths, predicate_tokens, predicate_map_tensor
-
-
 def to_input_variable(sequences, vocab, use_cuda=False, append_boundary_sym=True, mode ='token'):
     """
     given a list of sequences,
@@ -279,41 +190,14 @@ def to_input_variable(sequences, vocab, use_cuda=False, append_boundary_sym=True
             raise ValueError
     else:
         pad = '<pad>'
-    #print (sequences)
+
     token_ids = token2id(sequences, vocab)
     sents_t = input_transpose(token_ids, vocab[pad])
-    #print (sents_t)
     sents_var = torch.LongTensor(sents_t)
-    #print (sents_var.size())
     if use_cuda:
         sents_var = sents_var.cuda()
 
     return sents_var
-
-
-def to_hierarchy_input_variable(sequences, vocab_dict, use_cuda=False, append_boundary_sym=True):
-    if append_boundary_sym:
-        sequences = [[GenAction(RuleVertex('<s>'))] + seq for seq in sequences]
-    #print (sequences)
-    hierarchy_var = {}
-    hierarchy_seq = {}
-    for type_name, vocab in vocab_dict.items():
-        hierarchy_seq[type_name] = []
-    for seq in sequences:
-        for type_name, vocab in vocab_dict.items():
-            hierarchy_seq[type_name].append([])
-        for action in seq:
-            hierarchy_seq[type(action).__name__][-1].append(action)
-    #print(hierarchy_seq)
-    for type_name, seqs in hierarchy_seq.items():
-        token_ids = token2id(seqs, vocab_dict[type_name])
-        pad_action = vocab_dict[type_name].id2token[0]
-        sents_t = input_transpose(token_ids, vocab_dict[type_name][pad_action])
-        sents_var = torch.LongTensor(sents_t)
-        if use_cuda:
-            sents_var = sents_var.cuda()
-        hierarchy_var[type_name] = sents_var
-    return hierarchy_var
 
 
 def variable_constr(x, v, use_cuda=False):
@@ -381,9 +265,8 @@ def direct_clip_grad_norm_(grads, max_norm, norm_type=2):
     """
     if isinstance(grads, torch.Tensor):
         grads = [grads]
-    #print (grads[0].data)
+
     grads = list(filter(lambda g: g is not None, grads))
-    #print (len(grads))
     max_norm = float(max_norm)
     norm_type = float(norm_type)
     if norm_type == inf:
@@ -437,47 +320,11 @@ class LabelSmoothing(nn.Module):
 
         self.confidence = 1.0 - smoothing
         self.one_hot = self.one_hot.unsqueeze(0)
-        #self.register_buffer('one_hot', one_hot.unsqueeze(0))
 
     def forward(self, model_prob, target):
         # (batch_size, *, tgt_vocab_size)
         dim = list(model_prob.size())[:-1] + [1]
-        #print (self.one_hot)
+
         true_dist = Variable(self.one_hot, requires_grad=False).repeat(*dim)
         true_dist.scatter_(-1, target.unsqueeze(-1), self.confidence)
-        # true_dist = model_prob.data.clone()
-        # true_dist.fill_(self.smoothing / (model_prob.size(1) - 1))  # FIXME: no label smoothing for <pad> <s> and </s>
-        # true_dist.scatter_(1, target.data.unsqueeze(1), self.confidence)
         return self.criterion(model_prob, true_dist).sum(dim=-1)
-
-
-class FeedForward(nn.Module):
-    """Feed forward neural network adapted from AllenNLP"""
-
-    def __init__(self, input_dim, num_layers, hidden_dims, activations, dropout):
-        super(FeedForward, self).__init__()
-
-        if not isinstance(hidden_dims, list):
-            hidden_dims = [hidden_dims] * num_layers  # type: ignore
-        if not isinstance(activations, list):
-            activations = [activations] * num_layers  # type: ignore
-        if not isinstance(dropout, list):
-            dropout = [dropout] * num_layers  # type: ignore
-
-        self.activations = activations
-        input_dims = [input_dim] + hidden_dims[:-1]
-        linear_layers = []
-        for layer_input_dim, layer_output_dim in zip(input_dims, hidden_dims):
-            linear_layers.append(nn.Linear(layer_input_dim, layer_output_dim))
-
-        self.linear_layers = nn.ModuleList(linear_layers)
-        dropout_layers = [nn.Dropout(p=value) for value in dropout]
-        self.dropout = nn.ModuleList(dropout_layers)
-        self.output_dim = hidden_dims[-1]
-        self.input_dim = input_dim
-
-    def forward(self, x):
-        output = x
-        for layer, activation, dropout in zip(self.linear_layers, self.activations, self.dropout):
-            output = dropout(activation(layer(output)))
-        return output

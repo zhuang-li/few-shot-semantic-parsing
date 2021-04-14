@@ -90,8 +90,7 @@ def init_arg_parser():
 
     arg_parser.add_argument('--train_file', type=str, help='path to the training target file')
     arg_parser.add_argument('--support_file', type=str, help='path to the support source file')
-    arg_parser.add_argument('--query_file', type=str, help='path to the query source file')
-
+    arg_parser.add_argument('--test_file', type=str, help='Path to the test file')
 
     arg_parser.add_argument('--batch_size', default=10, type=int, help='Batch size')
     arg_parser.add_argument('--train_iter', default=5, type=int, help='Train iteration size')

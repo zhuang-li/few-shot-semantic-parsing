@@ -20,23 +20,14 @@ from torch.autograd import Variable
 from model.nn_utils import to_input_variable
 from model.utils import GloveHelper
 from common.registerable import Registrable
-from components.dataset import Dataset, Example, EposideDataset
+from components.dataset import Example, EposideDataset, Dataset
 from common.utils import update_args, init_arg_parser
 from datasets import *
 from model import nn_utils
 import evaluation
-from components.grammar_validation.asdl import LambdaCalculusTransitionSystem
-from components.evaluator import DefaultEvaluator, ActionEvaluator
-from model.seq2seq_cross_templates import Seq2SeqModel
-from model.seq2seq_dong import Seq2SeqModel
-from model.seq2seq_c_t_stack import Seq2SeqModel
-from model.seq2seq_action import Seq2SeqModel
-from model.locked_dropout import ProtoDropout
-from model.seq2seq_bi_action import Seq2SeqModel
-from model.seq2seq_template import Seq2SeqModel
-from model.seq2seq_final_few_shot import Seq2SeqModel
-from model.seq2seq_few_shot import Seq2SeqModel
-from model.seq2seq_few_shot_plain import Seq2SeqModel
+from components.evaluator import DefaultEvaluator
+from model.proto_dropout import ProtoDropout
+from model.few_shot_seq2seq import Seq2SeqModel
 
 def init_config():
     args = arg_parser.parse_args()
@@ -100,22 +91,6 @@ def fine_tune(args):
     # load in train/dev set
     train_set = Dataset.from_bin_file(args.train_file)
 
-    # remove examples
-    """
-    remove_examples = []
-    remove_id = 4
-    for e_id, e in enumerate(train_set.examples):
-        if e_id == remove_id:
-            continue
-        else:
-            remove_examples.append(e)
-    print(len(remove_examples))
-    train_set = Dataset(remove_examples)
-    """
-    if args.dev_file:
-        dev_set = Dataset.from_bin_file(args.dev_file)
-    else: dev_set = Dataset(examples=[])
-
     vocab = pickle.load(open(args.vocab, 'rb'))
 
     print ("register parser ...")
@@ -124,31 +99,19 @@ def fine_tune(args):
     print("fine-tuning started ...")
     if args.load_model:
         print('load model from [%s]' % args.load_model, file=sys.stderr)
-        print ("=============================================================loading model===============================================================")
-        model, src_vocab, vertex_vocab = parser_cls.load(model_path=args.load_model, use_cuda = args.use_cuda, loaded_vocab=vocab,args=args)
+        model, src_vocab = parser_cls.load(model_path=args.load_model, use_cuda = args.use_cuda, loaded_vocab=vocab,args=args)
         print("load pre-trained word embedding (optional)")
-        print (args.glove_embed_path)
         if args.glove_embed_path and (src_vocab is not None):
             #print (args.embed_size)
             print('load glove embedding from: %s' % args.glove_embed_path, file=sys.stderr)
             glove_embedding = GloveHelper(args.glove_embed_path, args.embed_size)
             glove_embedding.load_pre_train_to(model.src_embed, src_vocab)
-
-        if args.init_vertex and args.glove_embed_path and vertex_vocab is not None:
-            print ("================================================= init vertex ============================================")
-            print (vertex_vocab)
-            word_ids, non_init_vertex = init_vertex_embedding_with_glove(model.ast_embed, vertex_vocab, vocab.predicate_tokens, args)
-            print ("non init vertex")
-            print (non_init_vertex)
     else:
         model = parser_cls(vocab, args)
     print ("setting model to fintuning mode")
     model.few_shot_mode = 'fine_tune'
     model.train()
 
-    #init_vertex_embedding_with_glove(model.ast_embed, model.vertex_vocab.token2id, vocab.predicate_tokens, args)
-
-    evaluator = Registrable.by_name(args.evaluator)(args=args)
     if args.use_cuda and torch.cuda.is_available():
         model.cuda()
     optimizer_cls = eval('torch.optim.%s' % args.optimizer)  # FIXME: this is evil!
@@ -157,26 +120,18 @@ def fine_tune(args):
     else:
         optimizer = optimizer_cls(model.parameters(), lr=args.lr)
 
-    print('begin training, %d training examples, %d dev examples' % (len(train_set), len(dev_set)), file=sys.stderr)
+    print('begin training, %d training examples' % (len(train_set)), file=sys.stderr)
     print('vocab: %s' % repr(vocab), file=sys.stderr)
 
     epoch = train_iter = 0
     report_loss = report_examples = report_sup_att_loss = report_att_reg_loss = report_ent_loss = 0.
-    history_dev_scores = []
-    num_trial = patience = 0
+    num_trial = 0
     train_set.examples.sort(key=lambda e: -len(e.src_sent))
     update_action_freq(model.action_freq, [e.tgt_actions for e in train_set.examples])
     print("init action embedding")
-    #print (args.metric)
-    if args.metric == 'matching':
-        model.proto_train_action_set = dict()
-        #print ("=================================")
-        #print (model.proto_train_action_set)
+
     model.init_action_embedding(train_set.examples, few_shot_mode='fine_tune')
-    #if args.num_exemplars_per_task:
-        #subselect_examples = train_set.random_sample_batch_iter(args.num_exemplars_per_task)
-        #replay_dataset = Dataset(subselect_examples)
-    #print (model.proto_train_action_set.keys())
+
     print("finish init action embedding")
     while True:
         if not args.max_epoch == 0:
@@ -189,17 +144,7 @@ def fine_tune(args):
 
                 loss, report_loss, report_examples, report_sup_att_loss, report_att_reg_loss, report_ent_loss = \
                     get_model_loss(model, batch_examples, args, report_loss, report_examples, report_sup_att_loss, report_att_reg_loss, report_ent_loss)
-                """
-                if args.num_exemplars_per_task:
-                    #print (args.num_exemplars_per_task)
-                    #print (len(batch_examples))
-                    replay_examples = replay_dataset.random_sample_batch_iter(len(batch_examples))
-                    replay_examples.sort(key=lambda e: -len(e.src_sent))
-                    replay_loss, report_loss, report_examples, report_sup_att_loss, report_att_reg_loss, report_ent_loss = \
-                        get_model_loss(model, replay_examples, args, report_loss, report_examples, report_sup_att_loss,
-                                       report_att_reg_loss, report_ent_loss)
-                    loss += replay_loss
-                """
+
                 loss.backward()
 
                 # clip gradient
@@ -231,29 +176,6 @@ def fine_tune(args):
             print('save model to [%s]' % model_file, file=sys.stderr)
             model.save(model_file)
 
-        # perform validation
-        is_better = False
-        if args.dev_file:
-            if epoch % args.valid_every_epoch == 0:
-                model.eval()
-                print('[Epoch %d] begin validation' % epoch, file=sys.stderr)
-                eval_start = time.time()
-                eval_results = evaluation.evaluate(dev_set.examples, model, evaluator, args,
-                                                   verbose=True, eval_top_pred_only=args.eval_top_pred_only)
-                dev_score = eval_results[evaluator.default_metric]
-
-                print('[Epoch %d] evaluate details: %s, dev %s: %.5f (took %ds)' % (
-                                    epoch, eval_results,
-                                    evaluator.default_metric,
-                                    dev_score,
-                                    time.time() - eval_start), file=sys.stderr)
-
-                is_better = history_dev_scores == [] or dev_score > max(history_dev_scores)
-                history_dev_scores.append(dev_score)
-                model.train()
-        else:
-            is_better = True
-
         if args.decay_lr_every_epoch and epoch > args.lr_decay_after_epoch and epoch%args.valid_every_epoch == 0:
             lr = optimizer.param_groups[0]['lr'] * args.lr_decay
             print('decay learning rate to %f' % lr, file=sys.stderr)
@@ -264,19 +186,14 @@ def fine_tune(args):
 
 
 
-        if is_better:
-            # model.init_action_embedding(train_set.examples)
-            patience = 0
-            model_file = args.save_to + '.bin'
-            print('save the current model ..', file=sys.stderr)
-            print('save model to [%s]' % model_file, file=sys.stderr)
-            model.save(model_file)
-            # also save the optimizers' state
-            torch.save(optimizer.state_dict(), args.save_to + '.optim.bin')
+        patience = 0
+        model_file = args.save_to + '.bin'
+        print('save the current model ..', file=sys.stderr)
+        print('save model to [%s]' % model_file, file=sys.stderr)
+        model.save(model_file)
+        # also save the optimizers' state
+        torch.save(optimizer.state_dict(), args.save_to + '.optim.bin')
 
-        elif patience < args.patience and epoch >= args.lr_decay_after_epoch:
-            patience += 1
-            print('hit patience %d' % patience, file=sys.stderr)
 
         if epoch == args.max_epoch:
             print('reached max epoch, stop!', file=sys.stderr)
@@ -306,7 +223,6 @@ def fine_tune(args):
                     optimizer = reset_optimizer_cls(model.parameters(), lr=args.lr, alpha=args.alpha)
                 else:
                     optimizer = reset_optimizer_cls(model.parameters(), lr=args.lr)
-                #optimizer = torch.optim.Adam(model.parameters(), lr=lr)
             else:
                 print('restore parameters of the optimizers', file=sys.stderr)
                 optimizer.load_state_dict(torch.load(args.save_to + '.optim.bin'))
@@ -315,8 +231,6 @@ def fine_tune(args):
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
 
-            # reset patience
-            patience = 0
 
 def get_action_set(action_seq):
     action_set = set()
@@ -340,7 +254,6 @@ def get_mask(action_set, vocab, use_cuda):
     if use_cuda:
         label_mask = label_mask.cuda()
     for action in list(action_set):
-        # print (action)
         unmask_action_id = vocab[action]
         label_mask[0][0] = 1
         label_mask[0][1] = 1
@@ -354,13 +267,9 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
         model.few_shot_mode = 'supervised_train'
         ret_val = model(batch_examples)
         length_examples = len(batch_examples)
-        #print (batch_examples[0].src_sent)
     elif train_mode == 'proto_train':
         support_examples, query_examples = next(iter_obj)
-        #print ("support",len(support_examples))
-        #print ("query",len(query_examples))
         model.few_shot_mode = 'proto_train'
-        #print (model.proto_mask)
         assert model.proto_mask == None, "there should be no mask before init the embedding"
         assert model.proto_train_action_set == None, "there should be no proto train action set before init the embedding"
         model.proto_train_action_set = dict()
@@ -368,59 +277,26 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
         proto_mask = get_mask(action_set, model.action_vocab, model.use_cuda)
         model.proto_mask = proto_mask
 
-        #
-        vocab_embedding = model.action_embedding(model.new_long_tensor([i for i in range(len(model.action_vocab))]))
+        vocab_embedding = model.action_embedding.weight
         vocab_embedding = (vocab_embedding.t() * model.action_mask).t()
-
         proto_mask[0][0] = 0
         proto_mask[0][1] = 0
-        #print ("before -------------")
-        #for i in range(model.action_proto.size(0)):
-            #print (model.action_proto[i])
-
         model.action_proto = model.action_proto.clone() + (vocab_embedding.t() * (1.0 - proto_mask)).t()
-
-
         drop_proto, mask = proto_drop(model.action_proto)
-        #print (drop_proto)
-
-        """
-        proto_train_action_set = {}
-
-        for idx, bool_value in enumerate(list(mask[0])):
-            if bool_value > 0:
-                proto_train_action_set.add(model.action_vocab.id2token[idx])
-
-        model.proto_train_action_set = proto_train_action_set
-        """
-        #print (mask)
-        #print (mask)
-        #print (drop_proto.size())
-
-
-        #print (vocab_embedding.size())
         model.action_proto = drop_proto + (vocab_embedding.t() * (1.0 - mask)).t()
-        #for i in range(model.action_proto.size(0)):
-            #print (model.action_proto[i])
-        #print (model.action_embedding.weight.size())
-        #print (model.action_embedding.weight[0].requires_grad)
         ret_val = model(query_examples)
         length_examples = len(query_examples)
         model.proto_mask = None
         model.proto_train_action_set = None
 
-    # print (len(query_examples))
     optimizer.zero_grad()
 
 
-    # print (model.action_proto[6])
     loss = ret_val[0]
     if loss.numel() > 1:
-        # print ("loss size ", loss.size())
         loss_val = torch.sum(loss).data.item()
         loss = torch.mean(loss)
     elif loss.numel() == 1:
-        # print ("1 loss size ", loss.size())
         loss_val = loss.item()
         loss = loss / length_examples
     else:
@@ -429,7 +305,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
     if args.sup_attention:
         att_probs = ret_val[1]
         if att_probs:
-            # print (len(att_probs))
             sup_att_stack_loss = torch.stack(att_probs)
             sup_att_loss = -sup_att_stack_loss.mean()
             sup_att_loss_val = -sup_att_stack_loss.sum().data.item()
@@ -441,7 +316,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
     if args.att_reg:
         reg_loss = ret_val[2]
         if reg_loss:
-            # print (len(att_probs))
             reg_stack_loss = torch.stack(reg_loss)
             att_reg_loss = reg_stack_loss.mean()
             att_reg_loss_val = reg_stack_loss.sum().data.item()
@@ -451,8 +325,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
     ent_loss_val = 0
     loss_ent = ret_val[3]
     if loss_ent:
-        #print (len(loss_ent))
-
         ent_stack_loss = torch.stack(loss_ent)
 
         ent_loss = -ent_stack_loss.mean()
@@ -460,20 +332,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
         loss += ent_loss
 
     loss.backward()
-
-    #print(model.att_reg_linear.weight.grad)
-
-    if args.embed_fixed:
-        if src_ids:
-            #print (model.new_long_tensor(src_ids))
-            model.src_embed.weight.grad[model.new_long_tensor(src_ids)] = 0
-        if args.init_vertex:
-            if vertex_ids:
-                #print (model.new_long_tensor(vertex_ids))
-                #print (vertex_ids)
-                model.ast_embed.weight.grad[model.new_long_tensor(vertex_ids)] = 0
-                #print (model.ast_embed.weight.grad[model.new_long_tensor(vertex_ids)].size())
-
 
     # clip gradient
     if args.clip_grad > 0.:
@@ -485,36 +343,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
     optimizer.step()
 
     return loss_val, length_examples, sup_att_loss_val, att_reg_loss_val, ent_loss_val
-
-def init_vertex_embedding_with_glove(vertex_embed_layer, vertex_vocab, predicate_token_vocab, args):
-    predicate_embed = torch.nn.Embedding(len(predicate_token_vocab), args.action_embed_size)
-    torch.nn.init.xavier_normal_(predicate_embed.weight.data)
-    if args.use_cuda:
-        predicate_embed = predicate_embed.cuda()
-    # print (src_embed.weight[12].data)
-    #print (args.glove_embed_path)
-    predicate_glove_embedding = GloveHelper(args.glove_embed_path, args.action_embed_size)
-    predicate_glove_embedding.load_to(predicate_embed, predicate_token_vocab)
-    #print (vertex_vocab)
-    #print (predicate_token_vocab.lemma_token2id)
-    non_init_vertex = []
-    word_ids = []
-    for vertex, id in vertex_vocab.items():
-        if len(vertex.prototype_tokens) == 0:
-            non_init_vertex.append(vertex)
-            continue
-        vertex_var = to_input_variable([vertex.prototype_tokens], predicate_token_vocab, args.use_cuda,
-                                   append_boundary_sym=False)
-        vertex_embeddings = predicate_embed(vertex_var)
-        vertex_embedding = vertex_embeddings.mean(dim=0).squeeze()
-        #print (vertex_embedding)
-        vertex_embed_layer.weight.data[id].copy_(vertex_embedding)
-        word_ids.append(id)
-
-
-    del predicate_embed
-    torch.cuda.empty_cache()
-    return word_ids, non_init_vertex
 
 def pre_train(args):
     """Maximum Likelihood Estimation"""
@@ -540,7 +368,6 @@ def pre_train(args):
     normal_train_set = Dataset.from_bin_file(args.train_file)
 
     eposide_train_set = EposideDataset.from_bin_file(args.train_file)
-
 
     vocab = pickle.load(open(args.vocab, 'rb'))
 
@@ -579,12 +406,6 @@ def pre_train(args):
         print('load glove embedding from: %s' % args.glove_embed_path, file=sys.stderr)
         glove_embedding = GloveHelper(args.glove_embed_path, args.embed_size)
         src_ids = glove_embedding.load_to(model.src_embed, vocab.source)
-
-        if args.init_vertex:
-            print ("init vertex embedding with glove")
-            vertex_ids, non_init_vertex = init_vertex_embedding_with_glove(model.ast_embed, model.vertex_vocab.token2id, vocab.predicate_tokens, args)
-            print ("non init vertex")
-            print (non_init_vertex)
 
 
     print('begin training, %d training examples' % (len(normal_train_set)), file=sys.stderr)
@@ -748,9 +569,7 @@ def pre_train(args):
                 model_file = args.save_to + '.bin'
                 print('save the current model ..', file=sys.stderr)
                 print('save model to [%s]' % model_file, file=sys.stderr)
-                #print (len(model.train_action_set))
                 model.save(model_file)
-                # also save the optimizers' state
                 torch.save(optimizer.state_dict(), args.save_to + '.optim.bin')
 
 
@@ -765,28 +584,19 @@ def pre_train(args):
 def test(args):
     test_set = Dataset.from_bin_file(args.test_file)
     assert args.load_model
-    print (args.lang)
     print('load model from [%s]' % args.load_model, file=sys.stderr)
     params = torch.load(args.load_model, map_location=lambda storage, loc: storage)
     saved_args = params['args']
     saved_args.use_cuda = args.use_cuda
 
     parser_cls = Registrable.by_name(args.parser)
-    parser, src_vocab, vertex_vocab = parser_cls.load(model_path=args.load_model, use_cuda=args.use_cuda, args=args)
+    parser, src_vocab = parser_cls.load(model_path=args.load_model, use_cuda=args.use_cuda, args=args)
     parser.few_shot_mode = 'fine_tune'
     parser.eval()
-    vocab = parser.vocab
     evaluator = Registrable.by_name(args.evaluator)(args=args)
     eval_results, decode_results = evaluation.evaluate(test_set.examples, parser, evaluator, args,
                                                        verbose=args.verbose, return_decode_result=True)
-    if args.evaluator == 'action_evaluator':
-        for action in eval_results:
-            print ("{0} precision : {1:.4f}".format(action,eval_results[action][evaluator.precision]))
-            print ("{0} recall : {1:.4f}".format(action,eval_results[action][evaluator.recall]))
-            print ("{0} f measure : {1:.4f}".format(action,eval_results[action][evaluator.f_measure]))
-            print ("{0} support : {1:d}".format(action,eval_results[action][evaluator.support]))
-    else:
-        print(eval_results, file=sys.stderr)
+    print(eval_results, file=sys.stderr)
     if args.save_decode_to:
         pickle.dump(decode_results, open(args.save_decode_to, 'wb'))
 

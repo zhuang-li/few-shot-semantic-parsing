@@ -6,11 +6,10 @@ class Action(object):
         self.entities = []
         self.variables = []
         self.prototype_tokens = []
-        self.align_ids = []
-        self.align_tokens = []
         self.string_sim_score = []
         self.cond_score = []
         self.entity_align = []
+
 
 class ReduceAction(Action):
 

@@ -16,12 +16,6 @@ def is_var(elem, dataset='geo_prolog'):
         return elem in ['ANS', 'X', 'A', 'B', 'P', 'J']
     elif dataset == 'geo_lambda' or dataset == 'atis_lambda':
         return elem.startswith('$')
-    elif dataset == 'nlmap':
-        literal_dict = {'cw': ['car', 'walk'],
-                        'kmmi': ['km', 'mi'],
-                        'dist': ['WALKDING_DIST', 'DIST_INTOWN', 'DIST_OUTTOWN', 'DIST_DAYTRIP']}
-        return (re.match(r"\'(.+)\'", elem)) or isInt(elem) or elem in literal_dict['cw'] or elem in literal_dict[
-            'kmmi'] or elem in literal_dict['dist']
 
 
 def is_lit(elem, dataset='geo_prolog'):

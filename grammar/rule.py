@@ -156,56 +156,6 @@ def product_rules_to_actions_bottomup(template_trees, leaves_list, template_db, 
     return tid2config_seq
 
 
-def dfs_recursive(node, config_seq):
-    node.created_time = len(config_seq)
-    head = RuleVertex(node.head)
-    head.is_grammar_vertex = node.is_grammar_vertex
-    head.created_time = node.created_time
-    if node.parent:
-        head.parent = config_seq[node.parent.created_time].vertex
-    if str(head).startswith(IMPLICIT_HEAD) or str(head) == ROOT:
-        head.is_auto_nt = True
-    if head.is_grammar_vertex:
-        gen_t_action = GenTAction(head)
-        if head.parent:
-            gen_t_action.parent_t = head.parent.created_time
-        config_seq.append(gen_t_action)
-    else:
-        gen_nt_action = GenNTAction(head)
-        if head.parent:
-            gen_nt_action.parent_t = head.parent.created_time
-        config_seq.append(gen_nt_action)
-    body = []
-    idx = 0
-    for c in node.children:
-        if c.is_terminal():
-            if isinstance(c, CompositeTreeVertex):
-                c = c.vertex
-                c.created_time = head.created_time
-                var_list = []
-                get_vertex_variables(c, 'variable', var_list)
-                for vertex in var_list:
-                    vertex.parent = head
-                    dfs_recursive(vertex, config_seq)
-            elif str(c).startswith(TYPE_SIGN):
-                c.created_time = head.created_time
-                c.finished = False
-                var_list = []
-                get_vertex_variables(c, 'variable', var_list)
-                for vertex in var_list:
-                    vertex.parent = head
-                    dfs_recursive(vertex, config_seq)
-            body.append(c)
-            c.position = idx
-        else:
-            c_body = RuleVertex(NT)
-            c_body.finished = False
-            body.append(c_body)
-            dfs_recursive(c, config_seq)
-            c_body.position = idx
-        idx += 1
-    head.children = body
-
 
 def get_vertex_variables(vertex, type, seq_list):
     if vertex.has_children():

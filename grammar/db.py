@@ -82,18 +82,6 @@ class TemplateDB(object):
             tid_set.add(tid)
         return action_id
 
-    def index_var_action(self, tid, action):
-        if action in self.action2id:
-            var_action_id = self.var_action2id[action]
-            self.var_action2tidSet[action].add(tid)
-        else:
-            var_action_id = len(self.var_action2id)
-            tid_set = set()
-            self.var_action2id[action] = var_action_id
-            self.var_action2tidSet[action] = tid_set
-            tid_set.add(tid)
-        return var_action_id
-
 def index_leaves(root, template_id, template_db):
     leaf2occurList = template_db.tree2occurList
     visited, queue = set(), [root]
@@ -232,9 +220,7 @@ def normalize_trees(trees):
     temp_db = TemplateDB()
     for tid in range(len(trees)):
         index_leaves(trees[tid], tid, temp_db)
-    num_tree = 0
     iter = 0
-    tree_set = set()
     tree_updated = True
     while tree_updated:
         print('Ite : {}'.format(iter))
@@ -267,7 +253,6 @@ def convert_tree_to_composite_vertex(leaves):
     for tid, leaf in enumerate(leaves):
         if leaf.root.parent is not None and leaf.root.has_children():
             com_vertex = CompositeTreeVertex(leaf.root)
-            #print('Link {} to {}'.format(com_vertex, leaf.root.parent))
             children = leaf.root.parent.children
             new_children = []
             for child in children:

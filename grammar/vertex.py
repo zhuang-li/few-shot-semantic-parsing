@@ -43,8 +43,7 @@ class TreeVertex(object):
     def bfs_tree(self):
         visited, queue = set(), [self]
         tree = BFSTree(self)
-#        if self.depth > 0:
-#            raise Exception("Vertex ({}) has depth {}, but it should be 0.".format(self.head, self.depth))
+
         c_depth = 0
         while queue:
             vertex = queue.pop(0)
