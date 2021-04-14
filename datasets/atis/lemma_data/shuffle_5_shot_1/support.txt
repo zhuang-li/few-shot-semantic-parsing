@@ -1,0 +1,5 @@
+what is the earliest flight go from ci0 to ci1 on da0 mn0 dn0	( argmin $0 ( and ( flight $0 ) ( from $0 ci0 ) ( to $0 ci1 ) ( day $0 da0 ) ( day_number $0 dn0 ) ( month $0 mn0 ) ) ( departure_time $0 ) )
+what is the latest flight from ci0 to ci1 that serve a meal	( argmax $0 ( and ( flight $0 ) ( has_meal $0 ) ( from $0 ci0 ) ( to $0 ci1 ) ) ( departure_time $0 ) )
+i would like direct coach flight from ci0 to ci1	( lambda $0 e ( and ( flight $0 ) ( nonstop $0 ) ( class_type $0 coach:cl ) ( from $0 ci0 ) ( to $0 ci1 ) ) )
+what is the cost of limousin service in ci0	( lambda $0 e ( exists $1 ( and ( limousine $1 ) ( to_city $1 ci0 ) ( = ( ground_fare $1 ) $0 ) ) ) )
+find me the earliest flight from ci0 to ci1 that serve breakfast	( argmin $0 ( and ( flight $0 ) ( meal $0 breakfast:me ) ( from $0 ci0 ) ( to $0 ci1 ) ) ( departure_time $0 ) )

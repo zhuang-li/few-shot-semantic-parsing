@@ -1,0 +1,6 @@
+what job requir year0 year of experi requir a degid0 in cs are in languageid0 and are locat in locid0	job ( ANS ) , req_exp ( ANS , year0 ) , req_deg ( ANS , degid0 ) , language ( ANS , languageid0 ) , loc ( ANS , locid0 )
+show me the job requir year0 year of experi at companyid0	job ( ANS ) , req_exp ( ANS , year0 ) , company ( ANS , companyid0 )
+what do you have pay over num_salary on the platformid0	job ( ANS ) , salary_greater_than ( ANS , num_salary , year ) , platform ( ANS , platformid0 )
+what job are recruiterid0 employ hire for	job ( ANS ) , recruiter ( ANS , recruiterid0 )
+show me areaid0 job which recruiterid0 is recruit for	area ( ANS , areaid0 ) , job ( ANS ) , recruiter ( ANS , recruiterid0 )
+which job pay num_salary that do not requir a degid0	job ( ANS ) , salary_greater_than ( ANS , num_salary , year ) , \+ req_deg ( ANS , degid0 )

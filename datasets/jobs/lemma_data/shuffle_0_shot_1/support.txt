@@ -1,0 +1,3 @@
+what job require year0 year of experience require a degid0 in c are in languageid0 and are location in locid0	job ( ANS ) , req_exp ( ANS , year0 ) , req_deg ( ANS , degid0 ) , language ( ANS , languageid0 ) , loc ( ANS , locid0 )
+what job are recruiterid0 employ hire for	job ( ANS ) , recruiter ( ANS , recruiterid0 )
+which job pay num_salary that do not require a degid0	job ( ANS ) , salary_greater_than ( ANS , num_salary , year ) , \+ req_deg ( ANS , degid0 )

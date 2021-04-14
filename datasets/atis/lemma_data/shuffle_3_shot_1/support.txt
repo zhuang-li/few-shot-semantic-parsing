@@ -1,0 +1,5 @@
+i would like the time your earliest flight from ci0 to ci1	( departure_time ( argmin $0 ( and ( flight $0 ) ( from $0 ci0 ) ( to $0 ci1 ) ) ( departure_time $0 ) ) )
+i'm go to leave ci1 and i want to go to ci0 and i want to fli first class al0 and i want a stop in ci2 can you plea tell me what type of aircraft you will be fli	( lambda $0 e ( exists $1 ( and ( flight $1 ) ( airline $1 al0 ) ( class_type $1 first:cl ) ( from $1 ci1 ) ( to $1 ci0 ) ( stop $1 ci2 ) ( = ( aircraft_code $1 ) $0 ) ) ) )
+give me the flight from ci0 to ci1 da0 morn that have meal	( lambda $0 e ( and ( flight $0 ) ( has_meal $0 ) ( during_day $0 morning:pd ) ( from $0 ci0 ) ( to $0 ci1 ) ( day $0 da0 ) ) )
+i need a flight from ci0 to ci1 stop in ci2 the flight should also serve lunch	( lambda $0 e ( and ( flight $0 ) ( meal $0 lunch:me ) ( from $0 ci0 ) ( to $0 ci1 ) ( stop $0 ci2 ) ) )
+plea list the price for a rental car in ci0	( lambda $0 e ( exists $1 ( and ( rental_car $1 ) ( to_city $1 ci0 ) ( = ( ground_fare $1 ) $0 ) ) ) )

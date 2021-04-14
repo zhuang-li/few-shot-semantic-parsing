@@ -1,0 +1,6 @@
+show me titleid0 job requir no experi on platformid0	title ( ANS , titleid0 ) , job ( ANS ) , \+ ( req_exp ( ANS ) , platform ( ANS , platformid0 ) )
+what job use languageid0 on platformid0 machin and pay num_salary	job ( ANS ) , language ( ANS , languageid0 ) , platform ( ANS , platformid0 ) , salary_greater_than ( ANS , num_salary , year )
+what job are recruiterid0 employ hire for	job ( ANS ) , recruiter ( ANS , recruiterid0 )
+doe companyid0 have ani posit that dont requir experi	company ( ANS , companyid0 ) , job ( ANS ) , \+ req_exp ( ANS )
+show me areaid0 job which recruiterid0 is recruit for	area ( ANS , areaid0 ) , job ( ANS ) , recruiter ( ANS , recruiterid0 )
+what job use languageid0 on platformid0 and pay num_salary	job ( ANS ) , language ( ANS , languageid0 ) , platform ( ANS , platformid0 ) , salary_greater_than ( ANS , num_salary , year )

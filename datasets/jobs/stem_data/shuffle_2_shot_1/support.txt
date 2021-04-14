@@ -1,0 +1,3 @@
+what job in locid0 requir experi with platformid0	job ( ANS ) , loc ( ANS , locid0 ) , req_exp ( ANS ) , platform ( ANS , platformid0 )
+are there ani job with a salari of num_salary	job ( ANS ) , salary_greater_than ( ANS , num_salary , year )
+show me areaid0 job which recruiterid0 is recruit for	area ( ANS , areaid0 ) , job ( ANS ) , recruiter ( ANS , recruiterid0 )

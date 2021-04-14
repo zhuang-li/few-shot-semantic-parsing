@@ -1,0 +1,6 @@
+show me titleid0 job require no experience on platformid0	title ( ANS , titleid0 ) , job ( ANS ) , \+ ( req_exp ( ANS ) , platform ( ANS , platformid0 ) )
+what job in locid0 require experience with platformid0	job ( ANS ) , loc ( ANS , locid0 ) , req_exp ( ANS ) , platform ( ANS , platformid0 )
+what do you have pay over num_salary on the platformid0	job ( ANS ) , salary_greater_than ( ANS , num_salary , year ) , platform ( ANS , platformid0 )
+what job are recruiterid0 employ hire for	job ( ANS ) , recruiter ( ANS , recruiterid0 )
+what job are recruiterid0 employ hire for	job ( ANS ) , recruiter ( ANS , recruiterid0 )
+which job pay num_salary that do not require a degid0	job ( ANS ) , salary_greater_than ( ANS , num_salary , year ) , \+ req_deg ( ANS , degid0 )

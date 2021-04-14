@@ -1,0 +1,5 @@
+list all flight on al0 which leave ci0 and arrive in ci1 depart on da0 after ti0	( lambda $0 e ( and ( flight $0 ) ( airline $0 al0 ) ( > ( departure_time $0 ) ti0 ) ( from $0 ci0 ) ( to $0 ci1 ) ( day $0 da0 ) ) )
+what are first class fare from ci0 to ci1	( lambda $0 e ( exists $1 ( and ( class_type $1 first:cl ) ( from $1 ci0 ) ( to $1 ci1 ) ( = ( fare $1 ) $0 ) ) ) )
+show me all flight from ci0 to ci1 on da0 which serve a meal	( lambda $0 e ( and ( flight $0 ) ( has_meal $0 ) ( from $0 ci0 ) ( to $0 ci1 ) ( day $0 da0 ) ) )
+how much doe the limousin service cost within ci0	( lambda $0 e ( exists $1 ( and ( limousine $1 ) ( to_city $1 ci0 ) ( = ( ground_fare $1 ) $0 ) ) ) )
+plea show me flight from ci0 to ci1 on da0 morn serve breakfast	( lambda $0 e ( and ( flight $0 ) ( meal $0 breakfast:me ) ( during_day $0 morning:pd ) ( from $0 ci0 ) ( to $0 ci1 ) ( day $0 da0 ) ) )

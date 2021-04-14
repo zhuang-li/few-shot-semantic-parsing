@@ -1,0 +1,3 @@
+what job requir a degid0 year0 year of experi pay num_salary and are in locid0	job ( ANS ) , req_deg ( ANS , degid0 ) , req_exp ( ANS , year0 ) , salary_greater_than ( ANS , num_salary , year ) , loc ( ANS , locid0 )
+show me locid0 job with a salari of num_salary	loc ( ANS , locid0 ) , job ( ANS ) , salary_greater_than ( ANS , num_salary , year )
+show me areaid0 job which recruiterid0 is recruit for	area ( ANS , areaid0 ) , job ( ANS ) , recruiter ( ANS , recruiterid0 )

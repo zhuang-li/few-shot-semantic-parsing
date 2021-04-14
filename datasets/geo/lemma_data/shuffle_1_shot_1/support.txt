@@ -1,0 +1,5 @@
+what state ha highest elev	( lambda $0 e ( and ( state:t $0 ) ( loc:t ( argmax $1 ( place:t $1 ) ( elevation:i $1 ) ) $0 ) ) )
+what is the combin area of all 50 state	( sum $0 ( state:t $0 ) ( area:i $0 ) )
+which state ha the largest city	( lambda $0 e ( and ( state:t $0 ) ( loc:t ( argmax $1 ( city:t $1 ) ( size:i $1 ) ) $0 ) ) )
+what city in the co0 ha the highest population density	( argmax $0 ( and ( city:t $0 ) ( loc:t $0 co0 ) ) ( density:i $0 ) )
+which state border no other state	( lambda $0 e ( and ( state:t $0 ) ( not ( exists $1 ( and ( state:t $1 ) ( next_to:t $0 $1 ) ) ) ) ) )

@@ -1,0 +1,3 @@
+what job are there in locid0 with a salari of at least num_salary per year	job ( ANS ) , loc ( ANS , locid0 ) , salary_greater_than ( ANS , num_salary , year )
+what job need at least year0 year of experi	job ( ANS ) , req_exp ( ANS , year0 )
+show me areaid0 job which recruiterid0 is recruit for	area ( ANS , areaid0 ) , job ( ANS ) , recruiter ( ANS , recruiterid0 )

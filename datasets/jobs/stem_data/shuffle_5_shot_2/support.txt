@@ -1,0 +1,6 @@
+show the job with the titl system titleid0 requir year0 year of experi	job ( ANS ) , title ( ANS , titleid0 ) , req_exp ( ANS , year0 )
+what job use languageid0 on platformid0 machin and pay num_salary	job ( ANS ) , language ( ANS , languageid0 ) , platform ( ANS , platformid0 ) , salary_greater_than ( ANS , num_salary , year )
+which job in locid0 offer for student fresh out of colleg in areaid0	job ( ANS ) , loc ( ANS , locid0 ) , \+ req_exp ( ANS ) , area ( ANS , areaid0 )
+what job in locid0 are there that pay at least num_salary per year	job ( ANS ) , loc ( ANS , locid0 ) , salary_greater_than ( ANS , num_salary , year )
+what job are recruiterid0 employ hire for	job ( ANS ) , recruiter ( ANS , recruiterid0 )
+show me areaid0 job which recruiterid0 is recruit for	area ( ANS , areaid0 ) , job ( ANS ) , recruiter ( ANS , recruiterid0 )

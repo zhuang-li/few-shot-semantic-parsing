@@ -1,0 +1,5 @@
+which co0 city ha the highest population density	( argmax $0 ( and ( city:t $0 ) ( loc:t $0 co0 ) ) ( density:i $0 ) )
+what is the biggest capital city in the co0	( argmax $0 ( and ( capital:t $0 ) ( city:t $0 ) ( loc:t $0 co0 ) ) ( size:i $0 ) )
+which state ha the highest elev	( argmax $1 ( state:t $1 ) ( elevation:i $1 ) )
+which river do not run through s0	( lambda $0 e ( and ( river:t $0 ) ( not ( loc:t $0 s0 ) ) ) )
+what state ha the smallest area	( argmin $0 ( state:t $0 ) ( area:i $0 ) )
