@@ -7,7 +7,7 @@ shuffle=$1
 k_shot_num=$2
 suffix=$3
 data_dir="datasets/atis/freq_0/shuffle_${shuffle}_shot_${k_shot_num}/"
-model_dir="saved_models/atis/freq_0/shuffle_${shuffle}_shot_${k_shot_num}/"
+model_dir="saved_models/atis/freq_0/"
 
 vocab=${data_dir}"train_vocab.bin"
 train_file=${data_dir}"train.bin"

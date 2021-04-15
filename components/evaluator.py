@@ -7,7 +7,6 @@ from common.registerable import Registrable
 from grammar.consts import SLOT_PREFIX, VAR_NAME, ROOT, IMPLICIT_HEAD
 from grammar.hypothesis import Hypothesis
 from grammar.vertex import RuleVertex
-from sklearn.metrics import classification_report
 from common.utils import config_logger
 import os
 

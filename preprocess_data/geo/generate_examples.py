@@ -24,5 +24,5 @@ if __name__ == '__main__':
     data_type = 'geo_lambda'
     lang = 'lambda'
     place_holder = 6
-
-    generate_examples(dataset=dataset, data_type=data_type, lang=lang, place_holder=place_holder)
+    frequency_list = [0,50]
+    generate_examples(dataset=dataset, data_type=data_type, lang=lang, place_holder=place_holder, frequency_list=frequency_list)

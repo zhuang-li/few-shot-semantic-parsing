@@ -68,8 +68,8 @@ def prepare_data(train_set, train_db, support_file, query_file, dump_path_prefix
     return support_set, query_set
 
 
-def generate_examples(dataset = 'jobs', data_type = 'job_prolog', lang = 'prolog', place_holder = 3):
-    for frequency in [0, 50]:
+def generate_examples(dataset = 'jobs', data_type = 'job_prolog', lang = 'prolog', place_holder = 3, frequency_list=[]):
+    for frequency in frequency_list:
         if frequency > 0:
             rule_type = "ProductionRuleBL"
         else:
