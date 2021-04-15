@@ -53,7 +53,6 @@ python -u dropout_few_shot_exp.py \
     --query_num ${query_num} \
     --train_file ${train_file} \
     --vocab ${vocab} \
-    --att_filter ${att_filter} \
     --valid_every_epoch 1 \
     --forward_pass ${forward_pass} \
     --lstm ${lstm} \

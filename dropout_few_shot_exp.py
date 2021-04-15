@@ -271,8 +271,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
         support_examples, query_examples = next(iter_obj)
         model.few_shot_mode = 'proto_train'
         assert model.proto_mask == None, "there should be no mask before init the embedding"
-        assert model.proto_train_action_set == None, "there should be no proto train action set before init the embedding"
-        model.proto_train_action_set = dict()
         action_set = model.init_action_embedding(support_examples, few_shot_mode='proto_train')
         proto_mask = get_mask(action_set, model.action_vocab, model.use_cuda)
         model.proto_mask = proto_mask
@@ -287,7 +285,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
         ret_val = model(query_examples)
         length_examples = len(query_examples)
         model.proto_mask = None
-        model.proto_train_action_set = None
 
     optimizer.zero_grad()
 
@@ -346,10 +343,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
 
 def pre_train(args):
     """Maximum Likelihood Estimation"""
-
-    if args.dev_file:
-        dev_set = Dataset.from_bin_file(args.dev_file)
-    else: dev_set = Dataset(examples=[])
 
     dir_path = os.path.dirname(args.train_file)
 
@@ -513,37 +506,11 @@ def pre_train(args):
 
         train_iter += 1
         if epoch_flag:
-
-            if args.dev_file:
-                # model.eval()
-                normal_train_set.examples.sort(key=lambda e: -len(e.src_sent))
-                model.few_shot_mode = 'proto_train'
-                assert model.few_shot_mode == 'proto_train'
-                model.init_action_embedding(normal_train_set.examples,few_shot_mode='proto_train')
-                #model.few_shot_mode == 'fine_tune'
-                print('[Epoch %d] begin validation' % epoch, file=sys.stderr)
-                eval_start = time.time()
-                eval_results = evaluation.evaluate(dev_set.examples, model, evaluator, args,
-                                                   verbose=True, eval_top_pred_only=args.eval_top_pred_only)
-                dev_score = eval_results[evaluator.default_metric]
-
-                print('[Epoch %d] evaluate details: %s, dev %s: %.5f (took %ds)' % (
-                    epoch, eval_results,
-                    evaluator.default_metric,
-                    dev_score,
-                    time.time() - eval_start), file=sys.stderr)
-
-
             if args.save_all_models:
                 normal_train_set.examples.sort(key=lambda e: -len(e.src_sent))
                 model.few_shot_mode = 'proto_train'
                 assert model.few_shot_mode == 'proto_train'
-                if args.metric == 'matching':
-                    model.proto_train_action_set = dict()
                 model.init_action_embedding(normal_train_set.examples,few_shot_mode='proto_train')
-                if args.metric == 'matching':
-                    model.proto_train_action_set = None
-
                 model_file = args.save_to + '.iter%d.bin' % train_iter
                 print('save model to [%s]' % model_file, file=sys.stderr)
                 model.save(model_file)
@@ -561,11 +528,7 @@ def pre_train(args):
                 normal_train_set.examples.sort(key=lambda e: -len(e.src_sent))
                 model.few_shot_mode = 'proto_train'
                 assert model.few_shot_mode == 'proto_train'
-                if args.metric == 'matching':
-                    model.proto_train_action_set = dict()
                 model.init_action_embedding(normal_train_set.examples,few_shot_mode='proto_train')
-                if args.metric == 'matching':
-                    model.proto_train_action_set = None
                 model_file = args.save_to + '.bin'
                 print('save the current model ..', file=sys.stderr)
                 print('save model to [%s]' % model_file, file=sys.stderr)

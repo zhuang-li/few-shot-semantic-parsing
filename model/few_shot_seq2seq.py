@@ -209,9 +209,6 @@ class Seq2SeqModel(nn.Module):
 
         self.readout_variable = nn.Linear(self.hidden_size, len(self.variable_vocab), bias=False)
         self.action_freq = dict()
-        self.hinge_loss = args.hinge_loss
-        if self.hinge_loss:
-            self.hinge_loss = torch.nn.MultiMarginLoss()
 
         self.label_smoothing = None
 
@@ -501,10 +498,8 @@ class Seq2SeqModel(nn.Module):
             elif self.few_shot_mode == 'fine_tune':
                 action_proto = self.action_embedding.weight
 
-            score_t = torch.mm(action_proto, att_t.t())  # E.q. (6)
+            score_t = torch.mm(action_proto, att_t.t()).t()  # E.q. (6)
 
-
-            score_t = score_t.t()
             if self.train_mask:
                 if self.few_shot_mode == 'supervised_train':
                     score = masked_log_softmax(score_t, self.action_mask)
@@ -937,10 +932,10 @@ class Seq2SeqModel(nn.Module):
             if self.few_shot_mode == 'proto_train':
                 action_proto = self.action_proto
             elif self.few_shot_mode == 'supervised_train':
-                action_proto = self.action_embedding(self.new_long_tensor([i for i in range(len(self.action_vocab))]))
+                action_proto = self.action_embedding.weight
                 action_proto = (action_proto.t() * self.action_mask).t()
             elif self.few_shot_mode == 'fine_tune':
-                action_proto = self.action_embedding(self.new_long_tensor([i for i in range(len(self.action_vocab))]))
+                action_proto = self.action_embedding.weight
 
             score_t = torch.mm(action_proto, att_t.t()).t()
 

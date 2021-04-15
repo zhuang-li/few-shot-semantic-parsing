@@ -76,7 +76,6 @@ python -u dropout_few_shot_exp.py \
     --decay_lr_every_epoch \
     --batch_size ${batch_size} \
     --beam_size ${beam_size} \
-    --att_filter ${att_filter} \
     --glorot_init \
     --sup_attention \
     --patience ${patience} \

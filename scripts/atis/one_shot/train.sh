@@ -51,7 +51,6 @@ python -u dropout_few_shot_exp.py \
     --k_shot ${k_shot} \
     --att_reg ${att_reg} \
     --query_num ${query_num} \
-    --att_filter ${att_filter} \
     --train_file ${train_file} \
     --vocab ${vocab} \
     --valid_every_epoch 1 \

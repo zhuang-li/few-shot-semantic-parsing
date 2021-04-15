@@ -56,7 +56,6 @@ python -u dropout_few_shot_exp.py \
     --valid_every_epoch 1 \
     --forward_pass ${forward_pass} \
     --lstm ${lstm} \
-    --att_filter ${att_filter} \
     --sup_proto_turnover ${sup_proto_turnover} \
     --hidden_size ${hidden_size} \
     --embed_size ${embed_size} \

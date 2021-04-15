@@ -30,12 +30,12 @@ This is to generate the sequences of actions that could construct the logical fo
 
 ### Pre-training
 You could either download the pre-trained models from the corresponding links or pre-train the parser yourself.
-* *ATIS one-shot:* ```./scripts/atis/one_shot/train.sh```
-* *ATIS two-shot:* ```./scripts/atis/two_shot/train.sh```
-* *Geo one-shot:* ```./scripts/geo/one_shot/train.sh```
-* *Geo two-shot:* ```./scripts/geo/two_shot/train.sh```
-* *Jobs one-shot:* ```./scripts/jobs/one_shot/train.sh```
-* *Jobs two-shot:* ```./scripts/jobs/two_shot/train.sh```
+* *ATIS one-shot:* ```./scripts/atis/one_shot/train.sh 0 1 pretrain```
+* *ATIS two-shot:* ```./scripts/atis/two_shot/train.sh 0 1 pretrain```
+* *Geo one-shot:* ```./scripts/geo/one_shot/train.sh 0 1 pretrain```
+* *Geo two-shot:* ```./scripts/geo/two_shot/train.sh 0 1 pretrain```
+* *Jobs one-shot:* ```./scripts/jobs/one_shot/train.sh 0 1 pretrain```
+* *Jobs two-shot:* ```./scripts/jobs/two_shot/train.sh 0 1 pretrain```
 ### Fine-tuning and Testing
 * *ATIS one-shot:* ```./scripts/atis/one_shot/fine_tune.sh saved_models/atis/freq_0/pretrained_model_name.bin [0..4] [1..2]``` 
 * *ATIS two-shot:* ```./scripts/atis/two_shot/fine_tune.sh saved_models/atis/freq_50/pretrained_model_name.bin [0..4] [1..2]```

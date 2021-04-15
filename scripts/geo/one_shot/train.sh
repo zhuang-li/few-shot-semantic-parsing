@@ -50,7 +50,6 @@ python -u dropout_few_shot_exp.py \
     --lang geo_lambda \
     --n_way ${n_way} \
     --k_shot ${k_shot} \
-    --att_filter ${att_filter} \
     --att_reg ${att_reg} \
     --query_num ${query_num} \
     --train_file ${train_file} \
