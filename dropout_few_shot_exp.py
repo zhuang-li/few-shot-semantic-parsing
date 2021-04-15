@@ -344,18 +344,6 @@ def train_iter_func(iter_obj, model, proto_drop, optimizer, args, train_mode = '
 def pre_train(args):
     """Maximum Likelihood Estimation"""
 
-    dir_path = os.path.dirname(args.train_file)
-
-    temp_sup_loss_file = "reg_{}_sup_loss.txt".format(args.att_reg)
-    temp_proto_loss_file = "reg_{}_proto_loss.txt".format(args.att_reg)
-
-    sup_loss_file_path = os.path.join(dir_path, temp_sup_loss_file)
-
-    proto_loss_file_path = os.path.join(dir_path, temp_proto_loss_file)
-
-    sup_loss_file = open(sup_loss_file_path, 'w')
-
-    proto_loss_file = open(proto_loss_file_path, 'w')
 
     # load in train/dev set
     normal_train_set = Dataset.from_bin_file(args.train_file)
@@ -446,7 +434,6 @@ def pre_train(args):
 
                 if train_iter % args.log_every == 0:
                     log_str = '[Iter %d] encoder loss=%.5f' % (train_iter, report_loss / report_examples)
-                    print(str(report_loss / report_examples), file=sup_loss_file)
                     if args.sup_attention:
                         log_str += ' supervised attention loss=%.5f' % (report_sup_att_loss / report_examples)
                         report_sup_att_loss = 0.
@@ -482,7 +469,6 @@ def pre_train(args):
 
                 if train_iter % args.log_every == 1:
                     log_str = '[Iter %d] proto encoder loss=%.5f' % (train_iter, proto_report_loss / proto_report_examples)
-                    print(str(proto_report_loss / proto_report_examples), file=proto_loss_file)
                     if args.sup_attention:
                         log_str += ' proto supervised attention loss=%.5f' % (proto_report_sup_att_loss / proto_report_examples)
                         proto_report_sup_att_loss = 0.
@@ -537,8 +523,6 @@ def pre_train(args):
 
 
             if epoch == args.max_epoch:
-                sup_loss_file.close()
-                proto_loss_file.close()
                 print('reached max epoch, stop!', file=sys.stderr)
                 exit(0)
             epoch_flag = False
