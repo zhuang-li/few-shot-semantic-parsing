@@ -15,6 +15,7 @@ This is the code for the EACL2021 paper, [[Few-shot Semantic Parsing for New Pre
 ### Download the pretrained models
 Download the pre-trained models from Google Drive, and copy them to the corresponding folders.
 * Copy [[ATIS pre-trained model for one-shot learning]](https://drive.google.com/file/d/1ffuyVIx1-M71-CqXc8W-5d0JJLq74Sg4/view?usp=sharing) to ```saved_models/atis/freq_0/``` and unzip it.
+* More pre-trained models will be provided if needed.
 
 ## Train the semantic parsers
 ### Pre-process the data
