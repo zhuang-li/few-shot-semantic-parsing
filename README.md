@@ -46,10 +46,11 @@ You could either download the pre-trained models from the corresponding links or
 
 If you find this code useful, please cite:
 ```angular2html
-@article{li2021few,
+@inproceedings{li2021few,
   title={Few-Shot Semantic Parsing for New Predicates},
   author={Li, Zhuang and Qu, Lizhen and Huang, Shuo and Haffari, Gholamreza},
-  journal={arXiv preprint arXiv:2101.10708},
+  booktitle={Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume},
+  pages={1281--1291},
   year={2021}
 }
 ```
