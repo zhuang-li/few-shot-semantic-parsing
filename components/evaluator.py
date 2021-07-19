@@ -21,10 +21,15 @@ class DefaultEvaluator(object):
 
     def is_hyp_correct(self, example, hyp):
         assert isinstance(hyp, Hypothesis), "hyp should be Hypothesis"
-        if self.args.lang.endswith('lambda'):
-            return hyp.to_lambda_template == example.to_logic_form
-        elif self.args.lang.endswith('prolog'):
-            return hyp.to_prolog_template == example.to_logic_form
+        if self.args.parser == 'seq2seq':
+            print(hyp.to_logic_form)
+            print(" ".join(example.tgt_code))
+            return hyp.to_logic_form == " ".join(example.tgt_code)
+        else:
+            if self.args.lang.endswith('lambda'):
+                return hyp.to_lambda_template == example.to_logic_form
+            elif self.args.lang.endswith('prolog'):
+                return hyp.to_prolog_template == example.to_logic_form
 
 
     def evaluate_dataset(self, examples, decode_results, fast_mode=False):

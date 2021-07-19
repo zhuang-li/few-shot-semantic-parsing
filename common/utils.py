@@ -41,9 +41,9 @@ def init_arg_parser():
     #### General configuration ####
     arg_parser.add_argument('--seed', default=0, type=int, help='Random seed')
     arg_parser.add_argument('--use_cuda', action='store_true', default=False, help='Use gpu')
-    arg_parser.add_argument('--lang', choices=['geo_prolog', 'geo_lambda', 'atis_lambda', "job_prolog"], default='geo_lambda',
+    arg_parser.add_argument('--lang', choices=['geo_prolog', 'geo_lambda', 'atis_lambda', "job_prolog", "insurance_lambda"], default='geo_lambda',
                             help='language to parse. Deprecated, use --transition_system and --parser instead')
-    arg_parser.add_argument('--mode', choices=['pre_train', 'fine_tune', 'test'], default='train', help='Run mode')
+    arg_parser.add_argument('--mode', choices=['pre_train', 'fine_tune', 'test', 'train'], default='train', help='Run mode')
     arg_parser.add_argument('--few_shot_mode', choices=['pre_train', 'fine_tune', 'test'], default='pre_train', help='Few shot running mode')
 
     arg_parser.add_argument('--metric', choices=['prototype', 'relation', 'dot', 'matching'], default='dot', help='Metrics')
@@ -89,6 +89,7 @@ def init_arg_parser():
     arg_parser.add_argument('--glove_embed_path', default=None, type=str, help='Path to pretrained Glove mebedding')
 
     arg_parser.add_argument('--train_file', type=str, help='path to the training target file')
+    arg_parser.add_argument('--dev_file', type=str, help='path to the dev file')
     arg_parser.add_argument('--support_file', type=str, help='path to the support source file')
     arg_parser.add_argument('--test_file', type=str, help='Path to the test file')
 
@@ -149,9 +150,6 @@ def init_arg_parser():
 
     arg_parser.add_argument('--hyp_embed', default=True, action='store_true',
                             help='Use hybrid shared parameter or not')
-
-    arg_parser.add_argument('--proto_embed', default=False, action='store_true',
-                            help='Use proto embedding or not')
 
 
 

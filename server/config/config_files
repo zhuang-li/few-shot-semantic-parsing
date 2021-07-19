@@ -1,0 +1,12 @@
+{
+    "english" : {
+    "parser_type": "seq2seq",
+    "model_path": "saved_models/insurance/model.insurance.sup.lstm.hid256.embed200.act128.drop0.5.dropout_i0.lr_decay0.985.lr_dec_aft20.beam5.vocab.freq2.bin.train.bin.pat1000.max_ep200.batch64.lr0.0025.glorot.ls0.1.seed.clip_grad_modenorm.parserseq2seq.suffixinsurance.bin",
+    "evaluator": "default_evaluator"
+  },
+    "spanish" : {
+    "parser_type": "seq2seq",
+    "model_path": "saved_models/insurance/model.insurance.sup.lstm.hid256.embed200.act128.drop0.5.dropout_i0.lr_decay0.985.lr_dec_aft20.beam5.vocab.freq2.bin.train.bin.pat1000.max_ep200.batch64.lr0.0025.glorot.ls0.1.seed.clip_grad_modenorm.parserseq2seq.suffixinsurance.bin",
+    "evaluator": "default_evaluator"
+  }
+}
