@@ -8,6 +8,7 @@ This is the code for the EACL2021 paper, [[Few-shot Semantic Parsing for New Pre
 * Cuda 10.2
 * ```conda env create -f environment.yml```
 * ```conda activate few-shot-semantic-parsing```
+* ```pip install transformers```
 
 ### Download Glove
 ```./pull_dependency.sh```
