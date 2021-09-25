@@ -41,7 +41,7 @@ You could either download the pre-trained models from the corresponding links or
 * *Jobs one-shot:* ```./scripts/jobs/one_shot/fine_tune.sh saved_models/jobs/freq_0/pretrained_model_name.bin [0..4] [1..2]```
 * *Jobs two-shot:* ```./scripts/jobs/two_shot/fine_tune.sh saved_models/jobs/freq_0/pretrained_model_name.bin [0..4] [1..2]```
 
-If you find this code useful, please cite:
+If you have any questions, please open an issue on Github or contact me via <zhuang.li@monash.edu>. I am also happy to collobrate with others on the new semantic parsing task based on this work. If you find this code useful, please cite:
 ```angular2html
 @inproceedings{li2021few,
   title={Few-Shot Semantic Parsing for New Predicates},
